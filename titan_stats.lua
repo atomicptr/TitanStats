@@ -53,6 +53,7 @@ function HUDStatsScreen:init()
     local spending_cash_title, spending_cash_text = self:add_text_pair("spending_cash", day_payout_title, "SPENDING CASH:", "...", 20)
     local offshore_payout_title, offshore_payout_text = self:add_text_pair("offshore_payout", spending_cash_title, "OFFSHORE:", "...", 20)
     local cleaner_costs_title, cleaner_costs_text = self:add_text_pair("cleaner_costs", offshore_payout_title, "CLEANER COSTS:", "...")
+    local gagepackages_title, gagepackages_text = self:add_text_pair("gagepackages", cleaner_costs_title, "GAGE PACKAGES:", "...")
 end
 
 function HUDStatsScreen:show()
@@ -85,6 +86,8 @@ function HUDStatsScreen:show()
     if total_civilian_kills > 0 then
         self.day_wrapper_panel:child("cleaner_costs_text"):set_color(tweak_data.screen_colors.risk)
     end
+
+    self:update_text("gagepackages_text", managers.gage_assignment:count_active_units() .. " LEFT")
 end
 
 function HUDStatsScreen:update_text(name, text)
