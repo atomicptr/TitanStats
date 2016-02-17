@@ -16,10 +16,24 @@ function HUDStatsScreen:init()
     end
 
     -- create new text elements
+    local category_left = 0
 
-    -- difficulty
-    local paygrade_title = self:add_text_entry("paygrade_title", managers.localization:to_upper_text("menu_lobby_difficulty_title"))
-    paygrade_title:set_top(math.round(self.day_wrapper_panel:child("day_title"):bottom()))
+    -- current balance
+    local balance_category = self:add_text_entry("balance_category", "BALANCE")
+
+    balance_category:set_left(category_left)
+    balance_category:set_top(self.day_wrapper_panel:child("day_title"):bottom() + 5)
+
+    local cash_balance_title, cash_balance_text = self:add_text_pair("cash_balance", balance_category, "SPENDING CASH:", "...")
+    local offshore_balance_title, offshore_balance_text = self:add_text_pair("offshore_balance", cash_balance_title, "OFFSHORE:", "...")
+
+    -- job stats
+    local jobstats_category = self:add_text_entry("jobstats_category", "JOB STATS")
+
+    jobstats_category:set_left(category_left)
+    jobstats_category:set_top(offshore_balance_title:bottom() + 20)
+
+    local difficulty_title, difficulty_text = self:add_text_pair("difficulty", jobstats_category, managers.localization:to_upper_text("menu_lobby_difficulty_title"), "...")
 
     if managers.job:current_job_data() then
         local job_stars = managers.job:current_job_stars()
@@ -28,28 +42,17 @@ function HUDStatsScreen:init()
         local difficulty = tweak_data.difficulties[difficulty_stars + 2] or 1
         local difficulty_string_id = tweak_data.difficulty_name_ids[difficulty]
 
-        local risk_text = self:add_text_entry("risk_text",
-            managers.localization:to_upper_text(difficulty_string_id))
-
-        risk_text:set_top(paygrade_title:top())
-        risk_text:set_left(paygrade_title:right() + 8)
+        self:update_text("difficulty_text", managers.localization:to_upper_text(difficulty_string_id))
 
         if difficulty_stars > 0 then
-            risk_text:set_color(tweak_data.screen_colors.risk)
+            difficulty_text:set_color(tweak_data.screen_colors.risk)
         end
     end
 
-    local day_payout_title, day_payout_text = self:add_text_pair("day_payout", paygrade_title, "TOTAL PAYOUT:", "...")
-    local spending_cash_title, spending_cash_text = self:add_text_pair("spending_cash", day_payout_title, "SPENDING CASH PAYOUT:", "...")
-    local offshore_payout_title, offshore_payout_text = self:add_text_pair("offshore_payout", spending_cash_title, "OFFSHORE PAYOUT:", "...")
+    local day_payout_title, day_payout_text = self:add_text_pair("day_payout", difficulty_title, "TOTAL PAYOUT:", "...")
+    local spending_cash_title, spending_cash_text = self:add_text_pair("spending_cash", day_payout_title, "SPENDING CASH:", "...", 20)
+    local offshore_payout_title, offshore_payout_text = self:add_text_pair("offshore_payout", spending_cash_title, "OFFSHORE:", "...", 20)
     local cleaner_costs_title, cleaner_costs_text = self:add_text_pair("cleaner_costs", offshore_payout_title, "CLEANER COSTS:", "...")
-
-    local cash_balance_title, cash_balance_text = self:add_text_pair("cash_balance", nil, "CASH BALANCE:", "...")
-    cash_balance_title:set_top(cleaner_costs_title:bottom() + 20)
-    cash_balance_text:set_top(cash_balance_title:top())
-    cash_balance_text:set_left(cash_balance_title:right() + 8)
-    local offshore_balance_title, offshore_balance_text = self:add_text_pair("offshore_balance", cash_balance_title, "OFFSHORE BALANCE:", "...")
-
 end
 
 function HUDStatsScreen:show()
@@ -89,12 +92,18 @@ function HUDStatsScreen:update_text(name, text)
     field:set_w(self.day_wrapper_panel:w() / 2)
 end
 
-function HUDStatsScreen:add_text_pair(name, bottom_of, title_text, text_text)
+function HUDStatsScreen:add_text_pair(name, bottom_of, title_text, text_text, title_padding_left)
     local title = self:add_text_entry(name .. "_title", title_text)
     local text = self:add_text_entry(name .. "_text", text_text)
 
     if bottom_of then
         title:set_top(math.round(bottom_of:bottom()))
+
+        if not title_padding_left then
+            title_padding_left = 0
+        end
+
+        title:set_left(20 + title_padding_left)
         text:set_top(title:top())
         text:set_left(title:right() + 8)
     end
@@ -149,7 +158,7 @@ function HUDStatsScreen:cleaner_costs_string()
     local cost = managers.money:get_civilian_deduction()
     local total_civilian_kills = managers.statistics:session_total_civilian_kills() or 0
 
-    return "" .. exp:cash_string(cost * total_civilian_kills) .. "(" .. total_civilian_kills .. ")"
+    return "" .. exp:cash_string(cost * total_civilian_kills) .. " (" .. total_civilian_kills .. ")"
 end
 
 function HUDStatsScreen:spending_cash_string()
