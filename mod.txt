@@ -3,10 +3,10 @@
     "description" : "Extra Stats for your Stats Screen (Tab)",
     "author" : "kasoki",
     "contact" : "",
-    "version" : "1",
+    "version" : "2",
     "updates" : [
         {
-            "revision" : 1,
+            "revision" : 2,
             "identifier" : "de.kasoki.titan_stats"
         }
     ],

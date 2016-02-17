@@ -2,6 +2,8 @@
 
 A [PAYDAY 2](http://store.steampowered.com/app/218620/) mod, which adds more informations to the stats screen (TAB).
 
+![screenshot](misc/screenshot.png)
+
 ## Install
 
 Intended to be installed via [BLT](http://paydaymods.com/). You'll need a directory structure which kinda looks like this:
