@@ -1,10 +1,10 @@
 -- Titan Stats
 
-local init = HUDStatsScreen.init
-local show = HUDStatsScreen.show
+local titan_stats_init = HUDStatsScreen.init
+local titan_stats_show = HUDStatsScreen.show
 
 function HUDStatsScreen:init()
-    init(self)
+    titan_stats_init(self)
 
     self.right_panel = self._full_hud_panel:child("right_panel")
     self.day_wrapper_panel = self.right_panel:child("day_wrapper_panel")
@@ -54,10 +54,38 @@ function HUDStatsScreen:init()
     local offshore_payout_title, offshore_payout_text = self:add_text_pair("offshore_payout", spending_cash_title, "OFFSHORE:", "...", 20)
     local cleaner_costs_title, cleaner_costs_text = self:add_text_pair("cleaner_costs", offshore_payout_title, "CLEANER COSTS:", "...")
     local gagepackages_title, gagepackages_text = self:add_text_pair("gagepackages", cleaner_costs_title, "GAGE PACKAGES:", "...")
+
+    -- side jobs
+    local sidejobs_category = self:add_text_entry("sidejobs_category", "SIDE JOBS")
+
+    sidejobs_category:set_left(category_left)
+    sidejobs_category:set_top(gagepackages_title:bottom() + 10)
+
+    local last_job = sidejobs_category
+
+    for _, challenge in pairs(Global.challenge_manager.active_challenges or {}) do
+        -- don't show challenges without objectives
+        if challenge.objectives[1].progress then
+            local progress_string = challenge.objectives[1].progress .. "/" .. challenge.objectives[1].max_progress
+            local sj_title, sj_progress = self:add_text_pair("sj_" .. challenge.id, last_job, managers.localization:to_upper_text(challenge.name_id), progress_string)
+
+            local sj_desc = self:add_text_entry("sj_" .. challenge.id .. "_desc", managers.localization:to_upper_text(challenge.desc_id))
+
+            sj_desc:set_top(sj_title:bottom())
+            sj_desc:set_left(spending_cash_title:left())
+            sj_desc:set_font_size(16)
+
+            sj_progress:set_color(tweak_data.screen_colors.risk)
+
+            last_job = sj_desc
+        else
+            log("No progress? " .. challenge.id)
+        end
+    end
 end
 
 function HUDStatsScreen:show()
-    show(self)
+    titan_stats_show(self)
 
     self.right_panel = self._full_hud_panel:child("right_panel")
 
@@ -88,6 +116,20 @@ function HUDStatsScreen:show()
     end
 
     self:update_text("gagepackages_text", managers.gage_assignment:count_active_units() .. " LEFT")
+
+    -- update side jobs
+    for _, challenge in pairs(Global.challenge_manager.active_challenges or {}) do
+        -- only objectives with progress are shown
+        if challenge.objectives[1].progress then
+            local progress_string = challenge.objectives[1].progress .. "/" .. challenge.objectives[1].max_progress
+
+            self:update_text("sj_" .. challenge.id .. "_text", progress_string)
+
+            if challenge.objectives[1].completed then
+                self.day_wrapper_panel:child("sj_" .. challenge.id .. "_text"):set_color(Color.green)
+            end
+        end
+    end
 end
 
 function HUDStatsScreen:update_text(name, text)
