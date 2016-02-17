@@ -1,0 +1,19 @@
+{
+    "name" : "Titan Stats",
+    "description" : "Extra Stats for your Stats Screen (Tab)",
+    "author" : "kasoki",
+    "contact" : "",
+    "version" : "1",
+    "updates" : [
+        {
+            "revision" : 1,
+            "identifier" : "de.kasoki.titan_stats"
+        }
+    ],
+    "hooks" : [
+        {
+            "hook_id" : "lib/managers/hud/hudstatsscreen",
+            "script_path" : "titan_stats.lua"
+        }
+    ]
+}
