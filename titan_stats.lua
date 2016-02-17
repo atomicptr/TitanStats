@@ -31,7 +31,7 @@ function HUDStatsScreen:init()
     local jobstats_category = self:add_text_entry("jobstats_category", "JOB STATS")
 
     jobstats_category:set_left(category_left)
-    jobstats_category:set_top(offshore_balance_title:bottom() + 20)
+    jobstats_category:set_top(offshore_balance_title:bottom() + 10)
 
     local difficulty_title, difficulty_text = self:add_text_pair("difficulty", jobstats_category, managers.localization:to_upper_text("menu_lobby_difficulty_title"), "...")
 
@@ -72,13 +72,19 @@ function HUDStatsScreen:show()
 
     self:clean_up()
 
+    self:update_text("cash_balance_text", managers.experience:cash_string(managers.money:total()))
+    self:update_text("offshore_balance_text", managers.experience:cash_string(managers.money:offshore()))
+
     self:update_text("day_payout_text", self:day_payout_string())
     self:update_text("spending_cash_text", self:spending_cash_string())
     self:update_text("offshore_payout_text", self:offshore_payout_string())
     self:update_text("cleaner_costs_text", self:cleaner_costs_string())
 
-    self:update_text("cash_balance_text", managers.experience:cash_string(managers.money:total()))
-    self:update_text("offshore_balance_text", managers.experience:cash_string(managers.money:offshore()))
+    local total_civilian_kills = managers.statistics:session_total_civilian_kills() or 0
+
+    if total_civilian_kills > 0 then
+        self.day_wrapper_panel:child("cleaner_costs_text"):set_color(tweak_data.screen_colors.risk)
+    end
 end
 
 function HUDStatsScreen:update_text(name, text)
@@ -166,8 +172,6 @@ function HUDStatsScreen:spending_cash_string()
 
     local potential_payout = managers.money:get_potential_payout_from_current_stage()
     local offshore_rate = managers.money:get_tweak_value("money_manager", "offshore_rate")
-    local cleaner_costs = managers.money:get_civilian_deduction()
-    local total_civilian_kills = managers.statistics:session_total_civilian_kills() or 0
 
-    return exp:cash_string(math.round(potential_payout * offshore_rate) - cleaner_costs * total_civilian_kills)
+    return exp:cash_string(math.round(potential_payout * offshore_rate))
 end
