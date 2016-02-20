@@ -55,6 +55,8 @@ function HUDStatsScreen:init()
     local cleaner_costs_title, cleaner_costs_text = self:add_text_pair("cleaner_costs", offshore_payout_title, "CLEANER COSTS:", "...")
     local gagepackages_title, gagepackages_text = self:add_text_pair("gagepackages", cleaner_costs_title, "GAGE PACKAGES:", "...")
 
+    gagepackages_text:set_color(tweak_data.screen_colors.risk)
+
     -- side jobs
     local sidejobs_category = self:add_text_entry("sidejobs_category", "SIDE JOBS")
 
@@ -64,23 +66,32 @@ function HUDStatsScreen:init()
     local last_job = sidejobs_category
 
     for _, challenge in pairs(Global.challenge_manager.active_challenges or {}) do
-        -- don't show challenges without objectives
+        local progress_string = nil
+
+        -- if has progress show a progress indicator instead
         if challenge.objectives[1].progress then
-            local progress_string = challenge.objectives[1].progress .. "/" .. challenge.objectives[1].max_progress
-            local sj_title, sj_progress = self:add_text_pair("sj_" .. challenge.id, last_job, managers.localization:to_upper_text(challenge.name_id), progress_string)
-
-            local sj_desc = self:add_text_entry("sj_" .. challenge.id .. "_desc", managers.localization:to_upper_text(challenge.desc_id))
-
-            sj_desc:set_top(sj_title:bottom())
-            sj_desc:set_left(spending_cash_title:left())
-            sj_desc:set_font_size(16)
-
-            sj_progress:set_color(tweak_data.screen_colors.risk)
-
-            last_job = sj_desc
+            progress_string = challenge.objectives[1].progress .. "/" .. challenge.objectives[1].max_progress
         else
-            log("No progress? " .. challenge.id)
+            progress_string = "0/" .. challenge.objectives[1].max_progress
         end
+
+        local sj_title, sj_progress = self:add_text_pair("sj_" .. challenge.id, last_job, managers.localization:to_upper_text(challenge.name_id), progress_string)
+
+        sj_progress:set_color(tweak_data.screen_colors.risk)
+
+        -- if has no progress don't use desc since they're way too long
+        local desc_id = challenge.desc_id
+
+        if not challenge.objectives[1].progress and challenge.objective_id then
+            desc_id = challenge.objective_id
+        end
+
+        local sj_desc = self:add_desc_entry("sj_" .. challenge.id .. "_desc", managers.localization:to_upper_text(desc_id))
+
+        sj_desc:set_top(sj_title:bottom())
+        sj_desc:set_left(spending_cash_title:left())
+
+        last_job = sj_desc
     end
 end
 
@@ -115,7 +126,13 @@ function HUDStatsScreen:show()
         self.day_wrapper_panel:child("cleaner_costs_text"):set_color(tweak_data.screen_colors.risk)
     end
 
-    self:update_text("gagepackages_text", managers.gage_assignment:count_active_units() .. " LEFT")
+    local gagepackages_left = managers.gage_assignment:count_active_units()
+
+    self:update_text("gagepackages_text", gagepackages_left .. " LEFT")
+
+    if gagepackages_left == 0 then
+        self.day_wrapper_panel:child("gagepackages_text"):set_color(Color.green)
+    end
 
     -- update side jobs
     for _, challenge in pairs(Global.challenge_manager.active_challenges or {}) do
@@ -126,6 +143,14 @@ function HUDStatsScreen:show()
             self:update_text("sj_" .. challenge.id .. "_text", progress_string)
 
             if challenge.objectives[1].completed then
+                self.day_wrapper_panel:child("sj_" .. challenge.id .. "_text"):set_color(Color.green)
+            end
+        else
+            -- side jobs without a real progress need to be handled seperatly
+            if challenge.objectives[1].completed then
+                local progress_string = challenge.objectives[1].max_progress .. "/" .. challenge.objectives[1].max_progress
+                self:update_text("sj_" .. challenge.id .. "_text", progress_string)
+
                 self.day_wrapper_panel:child("sj_" .. challenge.id .. "_text"):set_color(Color.green)
             end
         end
@@ -166,13 +191,33 @@ function HUDStatsScreen:add_text_entry(name, text)
     local text_entry = self.day_wrapper_panel:child(name) or self.day_wrapper_panel:text({
         name = name,
         font = tweak_data.menu.pd2_small_font,
-        font_size = tweak_data.menu.pd2_small_font_size,
+        font_size = 18,--tweak_data.menu.pd2_small_font_size,
         text = text,
         color = Color.white,
         w = self.right_panel:w() / 2,
         blend_mode = "add",
         align = "left",
         vertical = "top"
+    })
+
+    managers.hud:make_fine_text(text_entry)
+
+    return text_entry
+end
+
+function HUDStatsScreen:add_desc_entry(name, text)
+    local text_entry = self.day_wrapper_panel:child(name) or self.day_wrapper_panel:text({
+        name = name,
+        font = tweak_data.menu.pd2_small_font,
+        font_size = 12,
+        text = text,
+        color = Color.white,
+        w = self.day_wrapper_panel:w() - 20,
+        blend_mode = "add",
+        align = "left",
+        vertical = "top",
+        wrap = true,
+        word_wrap = true
     })
 
     managers.hud:make_fine_text(text_entry)
