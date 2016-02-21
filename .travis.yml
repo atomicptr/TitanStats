@@ -1,0 +1,14 @@
+script:
+- mkdir "Titan Stats"
+- cp titan_stats.lua "Titan Stats/"
+- cp mod.txt "Titan Stats/"
+- zip -r TitanStats.zip "Titan Stats"
+
+deploy:
+  provider: releases
+  api_key:
+    secure: KEgZuOTfrdgEoatxS+Ls1LY3zJ5XAbDrmts0D8B8ULrCeKVRTmPefRiiF/UfBbkOooC1CxlzLwRbczIk2VK8pwO7nAuXjDrjoQpg3CXsJYVSLC0A4YQEntWatppEF5QsrR0XNYA4iq3lWN6sh9uOQAbgzd6Vkmfs1L4AoO6bb5C2TQZDb3uBlhkrN1mnocE41ad/NNyoG90kh3zbvDNp+Y3h3fIvQcyoPR9hPla0rSHz08pMQt1xA030HUGsysAQu/W7KfdkTMimBqS6YhldqKpppfqOfA9jUTFdjzZzgJ+RcFcncTyX9bBezj9t5lzzFtq1WeKohJ6SMKIAi7vXrh7lcnzDJX3QEnEHq2aP5/dhr8poiy0e8x0NHkqmynawbt+NPFgOLgwy/CtYMk9I1O/enQ9rlnUR4YhTjwEGsda6/QLFnzc7KeYGZassnNbpUVzuld3mCwMOoLpNcvVX+kShwsN5bFfd/Z9pM5imUJHG3abe2DUTDGbIByW96QzIrGMi6dYPZO0o1X4vpemoj1yRWf4SjFdWFevcGN64ZAaPhG+bvuoQl9/8nNxe59AqNHGueCDmgR63QurbtjBcwsTFKBT/a+Ere9hibqLHgh88Ww1e9nCIkZTIyFxvevrOTUi4QUHnY6Sepl0qMmazXvW6j/cmcK4qvrMAY26B+n4=
+  file: TitanStats.zip
+  skip_cleanup: true
+  on:
+    tags: true
