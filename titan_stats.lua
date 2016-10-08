@@ -10,11 +10,6 @@ function HUDStatsScreen:init()
     self.day_wrapper_panel = self.right_panel:child("day_wrapper_panel")
     self:clean_up()
 
-    -- pro job? make title red
-    if managers.job:is_current_job_professional() then
-        self.day_wrapper_panel:child("day_title"):set_color(Color.red)
-    end
-
     -- create new text elements
     local category_left = 0
 
