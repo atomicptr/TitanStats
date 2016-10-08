@@ -6,7 +6,7 @@
     "version" : "3",
     "updates" : [
         {
-            "revision" : 3,
+            "revision" : 4,
             "identifier" : "de.kasoki.titan_stats"
         }
     ],

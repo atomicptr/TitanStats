@@ -8,6 +8,10 @@ function HUDStatsScreen:init()
 
     self.right_panel = self._full_hud_panel:child("right_panel")
     self.day_wrapper_panel = self.right_panel:child("day_wrapper_panel")
+
+    -- save initial height, why? Check clean_up()
+    self.day_wrapper_panel_initial_height = self.day_wrapper_panel:h()
+
     self:clean_up()
 
     -- create new text elements
@@ -227,6 +231,9 @@ function HUDStatsScreen:clean_up()
     self.day_wrapper_panel:child("day_description"):set_visible(false)
     self.day_wrapper_panel:child("bains_plan"):set_visible(false)
     self.day_wrapper_panel:child("ghostable_text"):set_visible(false)
+
+    -- apparently PD2 resets the height of this panel at some point, for whatever reason
+    self.day_wrapper_panel:set_h(self.day_wrapper_panel_initial_height)
 end
 
 function HUDStatsScreen:day_payout_string()
